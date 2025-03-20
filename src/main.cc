@@ -69,7 +69,6 @@ void build_app_menu_bar() {
   app_menu_bar = new Fl_Menu_Bar(0, 0, app_window->w(), 25); // x, y, width, height
   app_menu_bar->add(QUIT_EDITOR, FL_COMMAND+'q', menu_quit_callback);
 
-  // NOTE: senza questa linea, la schermata non chiama il callback
   app_window->callback(menu_quit_callback);
 
   app_menu_bar->add(OPEN_FILE, FL_COMMAND+'o', menu_open_callback, NULL, FL_MENU_DIVIDER);
@@ -155,19 +154,12 @@ void menu_open_callback(Fl_Widget *, void *) {
 void menu_new_callback(Fl_Widget *, void *) {}
 
 void menu_save_callback(Fl_Widget *, void *) {
-  // Fl_Native_File_Chooser file_chooser;
-  // file_chooser.title(FILE_CHOOSER_TITLE);
-  // file_chooser.type(Fl_Native_File_Chooser::BROWSE_SAVE_FILE);
-  
-  // std::cout << "Ciao..." << std::endl;
-  
   if(!app_filename[0]) {
     menu_save_as_callback(NULL, NULL);
   } else {
-    // NOTE: questo app_filename nel savefile() non e' 
-    // specificato nella documentazione.
-    // Li c'e' scritto file_chooser.filename(),
-    // ma non e' corretto
+    // NOTE: this app_filename in savefile() is not
+    // in the documentation example for "simple text editor",
+    // where they use file_chooser.filename(). 
     if (app_text_buffer->savefile(app_filename) != 0) {
       std::cout << strerror(errno) << std::endl;
       fl_alert(
