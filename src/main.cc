@@ -12,11 +12,20 @@
 #include<errno.h>
 
 #define EDITOR_NAME "JIZZ CANNON"
-#define QUIT_EDITOR "File/Quit"
-#define OPEN_FILE "File/Open"
-#define NEW_FILE "File/New"
-#define SAVE_FILE "File/Save"
-#define SAVE_FILE_AS "File/Save as..."
+#define EDITOR_QUIT "Editor/Quit"
+
+#define FILE_OPEN "File/Open"
+#define FILE_NEW "File/New"
+#define FILE_SAVE "File/Save"
+#define FILE_SAVE_AS "File/Save as..."
+
+#define EDIT_UNDO "Edit/Undo"
+#define EDIT_REDO "Edit/Redo"
+#define EDIT_CUT "Edit/Cut"
+#define EDIT_COPY "Edit/Copy"
+#define EDIT_PASTE "Edit/Paste"
+#define EDIT_DELETE "Edit/Delete"
+
 #define FILE_CHOOSER_TITLE "JIZZ CANNON - Save as..."
 #define OPEN_FILE_FILE_CHOOSER_TITLE "JIZZ CANNON - Open file..."
 #define CURRENT_FILE_NOT_SAVED_MESSAGE "The current file has not been saved.\nWould you like to save before quitting?"
@@ -43,6 +52,14 @@ void menu_open_callback(Fl_Widget *, void *);
 void menu_new_callback(Fl_Widget *, void *);
 void menu_save_callback(Fl_Widget *, void *);
 void menu_save_as_callback(Fl_Widget *, void *);
+
+void menu_undo_callback(Fl_Widget *, void *);
+void menu_redo_callback(Fl_Widget *, void *);
+void menu_cut_callback(Fl_Widget *, void *);
+void menu_copy_callback(Fl_Widget *, void *);
+void menu_paste_callback(Fl_Widget *, void *);
+void menu_delete_callback(Fl_Widget *, void *);
+
 void text_changed_callback(int, int n_inserted, int n_deleted, int, const char *, void *);
 
 void set_changed(bool v);
@@ -54,7 +71,6 @@ int main(int argc, char **argv) {
   build_app_window();
   build_app_menu_bar();
   build_main_editor();
-  // add_file_support();
   // return handle_commandline_and_run(argc, argv);
   app_window->show();
   return Fl::run();
@@ -67,14 +83,23 @@ void build_app_window() {
 void build_app_menu_bar() {
   app_window->begin();
   app_menu_bar = new Fl_Menu_Bar(0, 0, app_window->w(), 25); // x, y, width, height
-  app_menu_bar->add(QUIT_EDITOR, FL_COMMAND+'q', menu_quit_callback);
+  app_menu_bar->add(EDITOR_QUIT, FL_COMMAND+'q', menu_quit_callback);
 
   app_window->callback(menu_quit_callback);
+  
+  // NOTE: these are the options relative to file saving, loading, etc...
+  app_menu_bar->add(FILE_OPEN, FL_COMMAND+'o', menu_open_callback, NULL, FL_MENU_DIVIDER);
+  app_menu_bar->add(FILE_NEW, FL_COMMAND+'n', menu_new_callback, NULL);
+  app_menu_bar->add(FILE_SAVE, FL_COMMAND+'s', menu_save_callback);
+  app_menu_bar->add(FILE_SAVE_AS, FL_COMMAND+'S', menu_save_as_callback, NULL, FL_MENU_DIVIDER);
 
-  app_menu_bar->add(OPEN_FILE, FL_COMMAND+'o', menu_open_callback, NULL, FL_MENU_DIVIDER);
-  app_menu_bar->add(NEW_FILE, FL_COMMAND+'n', menu_new_callback, NULL);
-  app_menu_bar->add(SAVE_FILE, FL_COMMAND+'s', menu_save_callback);
-  app_menu_bar->add(SAVE_FILE_AS, FL_COMMAND+'S', menu_save_as_callback, NULL, FL_MENU_DIVIDER);
+  // NOTE: there are the options relative to file editing
+  app_menu_bar->add(EDIT_UNDO, FL_COMMAND+'z', menu_undo_callback);
+  app_menu_bar->add(EDIT_REDO, FL_COMMAND+'Z', menu_redo_callback, NULL, FL_MENU_DIVIDER);
+  app_menu_bar->add(EDIT_CUT, FL_COMMAND+'x', menu_cut_callback);
+  app_menu_bar->add(EDIT_COPY, FL_COMMAND+'c', menu_copy_callback);
+  app_menu_bar->add(EDIT_PASTE, FL_COMMAND+'v', menu_paste_callback, NULL, FL_MENU_DIVIDER);
+  app_menu_bar->add(EDIT_DELETE, 0, menu_delete_callback);
   app_window->end();
 }
 
@@ -254,3 +279,46 @@ void load(const char *filename) {
         );
   }
 }
+
+void menu_undo_callback(Fl_Widget *, void *) {
+  Fl_Widget *focused_widget = Fl::focus();
+  if (focused_widget && (focused_widget == app_editor || focused_widget == app_split_editor)) {
+    Fl_Text_Editor::kf_undo(0, (Fl_Text_Editor*)focused_widget);
+  }
+}
+
+void menu_redo_callback(Fl_Widget *, void *) {
+  Fl_Widget *focused_widget = Fl::focus();
+  if (focused_widget && (focused_widget == app_editor || focused_widget == app_split_editor)) {
+    Fl_Text_Editor::kf_redo(0, (Fl_Text_Editor*)focused_widget);
+  }
+}
+
+void menu_cut_callback(Fl_Widget *, void *) {
+  Fl_Widget *focused_widget = Fl::focus();
+  if (focused_widget && (focused_widget == app_editor || focused_widget == app_split_editor)) {
+    Fl_Text_Editor::kf_cut(0, (Fl_Text_Editor*)focused_widget);
+  } 
+}
+
+void menu_copy_callback(Fl_Widget *, void *) {
+  Fl_Widget *focused_widget = Fl::focus();
+  if (focused_widget && (focused_widget == app_editor || focused_widget == app_split_editor)) {
+    Fl_Text_Editor::kf_copy(0, (Fl_Text_Editor*)focused_widget);
+  }
+}
+
+void menu_paste_callback(Fl_Widget *, void *) {
+  Fl_Widget *focused_widget = Fl::focus();
+  if (focused_widget && (focused_widget == app_editor || focused_widget == app_split_editor)) {
+    Fl_Text_Editor::kf_paste(0, (Fl_Text_Editor*)focused_widget);
+  }
+}
+
+void menu_delete_callback(Fl_Widget *, void *) {
+  Fl_Widget *focused_widget = Fl::focus();
+  if (focused_widget && (focused_widget == app_editor || focused_widget == app_split_editor)) {
+    Fl_Text_Editor::kf_delete(0, (Fl_Text_Editor*)focused_widget);
+  }
+}
+
