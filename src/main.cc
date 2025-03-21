@@ -25,6 +25,11 @@
 #define EDIT_PASTE "Edit/Paste"
 #define EDIT_DELETE "Edit/Delete"
 
+#define FIND "Find/Find..."
+#define FIND_NEXT "Find/Find Next..."
+#define FIND_INPUT_NEEDLE "Input term: "
+#define FIND_NO_OCCURRENCES_OF_NEEDLE "No more occurrences of word '%s'!"
+
 #define FILE_CHOOSER_TITLE "JIZZ CANNON - Save as..."
 #define OPEN_FILE_FILE_CHOOSER_TITLE "JIZZ CANNON - Open file..."
 #define CURRENT_FILE_NOT_SAVED_MESSAGE "The current file has not been saved.\nWould you like to save before quitting?"
@@ -39,6 +44,9 @@ Fl_Text_Buffer *app_text_buffer = NULL;
 
 bool text_changed = false;
 char app_filename[FL_PATH_MAX] = "";
+// NOTE: length should be enough, unless you want to search for your
+// entire PornHub history...
+char last_find_text[1024] = "";  
 
 void build_app_window();
 void build_app_menu_bar();
@@ -58,6 +66,10 @@ void menu_cut_callback(Fl_Widget *, void *);
 void menu_copy_callback(Fl_Widget *, void *);
 void menu_paste_callback(Fl_Widget *, void *);
 void menu_delete_callback(Fl_Widget *, void *);
+
+void find_next(const char *needle);
+void menu_find_callback(Fl_Widget *, void *);
+void menu_find_next_callback(Fl_Widget *, void *);
 
 void text_changed_callback(int, int n_inserted, int n_deleted, int, const char *, void *);
 
@@ -92,13 +104,18 @@ void build_app_menu_bar() {
   app_menu_bar->add(FILE_SAVE, FL_COMMAND+'s', menu_save_callback);
   app_menu_bar->add(FILE_SAVE_AS, FL_COMMAND+'S', menu_save_as_callback, NULL, FL_MENU_DIVIDER);
 
-  // NOTE: there are the options relative to file editing
+  // NOTE: these are the options relative to file editing
   app_menu_bar->add(EDIT_UNDO, FL_COMMAND+'z', menu_undo_callback);
   app_menu_bar->add(EDIT_REDO, FL_COMMAND+'Z', menu_redo_callback, NULL, FL_MENU_DIVIDER);
   app_menu_bar->add(EDIT_CUT, FL_COMMAND+'x', menu_cut_callback);
   app_menu_bar->add(EDIT_COPY, FL_COMMAND+'c', menu_copy_callback);
   app_menu_bar->add(EDIT_PASTE, FL_COMMAND+'v', menu_paste_callback, NULL, FL_MENU_DIVIDER);
   app_menu_bar->add(EDIT_DELETE, 0, menu_delete_callback);
+ 
+  // NOTE: these are relative to searching the text
+  app_menu_bar->add(FIND, FL_COMMAND+'f', menu_find_callback);
+  app_menu_bar->add(FIND_NEXT, FL_COMMAND+'g', menu_find_next_callback);
+
   app_window->end();
 }
 
@@ -316,6 +333,50 @@ void menu_delete_callback(Fl_Widget *, void *) {
   Fl_Widget *focused_widget = Fl::focus();
   if (focused_widget && (focused_widget == app_editor || focused_widget == app_split_editor)) {
     Fl_Text_Editor::kf_delete(0, (Fl_Text_Editor*)focused_widget);
+  }
+}
+
+void find_next(const char *needle) {
+  Fl_Text_Editor *current_editor = app_editor;
+  if (current_editor && current_editor == app_split_editor) {
+    current_editor = app_split_editor;
+  }
+  
+  // NOTE: to implement this function to find both after and before the 
+  // cursor, we have to first search for stuff *after* the cursor, and if 
+  // nothing is found, we search before.
+  int cursor_pos = current_editor->insert_position();
+  
+  int forward_search = app_text_buffer->search_forward(cursor_pos, needle, &cursor_pos);
+  int backward_search = app_text_buffer->search_backward(cursor_pos, needle, &cursor_pos); 
+  
+  if (!forward_search && !backward_search) {
+    fl_alert(FIND_NO_OCCURRENCES_OF_NEEDLE, needle);
+  }
+  
+  if (forward_search || backward_search) {
+    app_text_buffer->select(cursor_pos, cursor_pos + (int)strlen(needle));
+    current_editor->insert_position(cursor_pos + (int)strlen(needle));
+    current_editor->show_insert_position(); 
+  } else {
+    fl_alert(FIND_NO_OCCURRENCES_OF_NEEDLE, needle);
+  }
+
+}
+
+void menu_find_callback(Fl_Widget *, void *) {
+  const char *needle = fl_input(FIND_INPUT_NEEDLE, last_find_text);
+  if (needle) {
+    fl_strlcpy(last_find_text, needle, sizeof(last_find_text));
+    find_next(needle);
+  }
+}
+
+void menu_find_next_callback(Fl_Widget *, void *) {
+  if (last_find_text[0]) {
+    find_next(last_find_text);
+  } else {
+    menu_find_callback(NULL, NULL);
   }
 }
 
