@@ -8,7 +8,6 @@
 #include<FL/Fl_Native_File_Chooser.H>
 #include<FL/platform.H>
 
-#include<iostream>
 #include<errno.h>
 
 #define EDITOR_NAME "JIZZ CANNON"
@@ -145,7 +144,6 @@ void menu_open_callback(Fl_Widget *, void *) {
         "Save",
         "Don't save"
       );
-    std::cout << "valore r: " << r << std::endl;
 
     switch (r) {
       case 1:
@@ -186,7 +184,6 @@ void menu_save_callback(Fl_Widget *, void *) {
     // in the documentation example for "simple text editor",
     // where they use file_chooser.filename(). 
     if (app_text_buffer->savefile(app_filename) != 0) {
-      std::cout << strerror(errno) << std::endl;
       fl_alert(
           FAILED_TO_SAVE_FILE_ERROR,
           app_filename,
