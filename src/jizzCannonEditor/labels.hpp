@@ -1,0 +1,25 @@
+#define EDITOR_NAME "JIZZ CANNON"
+#define EDITOR_QUIT "Editor/Quit"
+
+#define FILE_OPEN "File/Open"
+#define FILE_NEW "File/New"
+#define FILE_SAVE "File/Save"
+#define FILE_SAVE_AS "File/Save as..."
+
+#define EDIT_UNDO "Edit/Undo"
+#define EDIT_REDO "Edit/Redo"
+#define EDIT_CUT "Edit/Cut"
+#define EDIT_COPY "Edit/Copy"
+#define EDIT_PASTE "Edit/Paste"
+#define EDIT_DELETE "Edit/Delete"
+
+#define FIND "Find/Find..."
+#define FIND_NEXT "Find/Find Next..."
+#define FIND_INPUT_NEEDLE "Input term: "
+#define FIND_NO_OCCURRENCES_OF_NEEDLE "No more occurrences of word '%s'!"
+
+#define FILE_CHOOSER_TITLE "JIZZ CANNON - Save as..."
+#define OPEN_FILE_FILE_CHOOSER_TITLE "JIZZ CANNON - Open file..."
+#define CURRENT_FILE_NOT_SAVED_MESSAGE "The current file has not been saved.\nWould you like to save before quitting?"
+#define FAILED_TO_LOAD_FILE_ERROR "JIZZ CANNON ERROR - Failed to load file! Err number: %s, %s"
+#define FAILED_TO_SAVE_FILE_ERROR "JIZZ CANNON ERROR - Failed to save file! Err number: %s, %s"
